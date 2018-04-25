@@ -48,16 +48,16 @@ class FG_eval {
     fg[0] = 0.0;
 
     // Defining the weights of the parameters we want to reduce to make our cost function effective
-    int weight_cte = 2000;
-    int weight_epsi = 2000;
+    int weight_cte = 1;
+    int weight_epsi = 1;
     int weight_velocity = 1;
 
     // Defining the weights for parameters for steering and acceleration
-    int weight_steering = 10;
+    int weight_steering = 1;
     int weight_acceleration = 10;
 
     // Defining the weights for rate of change of acceleration and steering values
-    int weight_steering_change = 100;
+    int weight_steering_change = 500;
     int weight_acceleration_change = 10;
     // In the end we need to sum up all the values together to first element, that will be our cost function
 

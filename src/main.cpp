@@ -151,7 +151,7 @@ int main() {
           */
 
           auto vars = mpc.Solve(state, coeffs);
-          double steer_value= vars[0] / (deg2rad(25));
+          double steer_value= -vars[0] / (deg2rad(25));
           double throttle_value = vars[1];
 
           json msgJson;
