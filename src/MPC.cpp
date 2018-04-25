@@ -9,7 +9,7 @@ using CppAD::AD;
 size_t N = 10;
 double dt = 0.1;
 
-const double ref_v = 60;
+const double ref_v = 55;
 
 size_t x_start = 0;
 size_t y_start = x_start + N;
@@ -53,7 +53,7 @@ class FG_eval {
     int weight_velocity = 1;
 
     // Defining the weights for parameters for steering and acceleration
-    int weight_steering = 1;
+    int weight_steering = 10;
     int weight_acceleration = 10;
 
     // Defining the weights for rate of change of acceleration and steering values
@@ -63,20 +63,20 @@ class FG_eval {
 
 
     // The part of the cost based on the reference state. Costs for CTE, PSI Error and Velocity
-    for (int t = 0; t < N; t++) {
+    for (unsigned int t = 0; t < N; t++) {
       fg[0] += weight_cte * CppAD::pow(vars[cte_start + t], 2);
       fg[0] += weight_epsi * CppAD::pow(vars[epsi_start + t], 2);
       fg[0] += weight_velocity * CppAD::pow(vars[v_start + t] - ref_v, 2);
     }
 
     // Minimize the use of actuators. Costs for Steering Angle and Acceleration
-    for (int t = 0; t < N - 1; t++) {
+    for (unsigned int t = 0; t < N - 1; t++) {
       fg[0] += weight_steering * CppAD::pow(vars[delta_start + t], 2);
       fg[0] += weight_acceleration * CppAD::pow(vars[a_start + t], 2);
     }
 
     // Minimize the value gap between sequential actuations.
-    for (int t = 0; t < N - 2; t++) {
+    for (unsigned int t = 0; t < N - 2; t++) {
       fg[0] += weight_steering_change * CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
       fg[0] += weight_acceleration_change * CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
     }
@@ -99,7 +99,7 @@ class FG_eval {
     fg[1 + epsi_start] = vars[epsi_start];
 
     // The rest of the constraints
-    for (int t = 1; t < N; t++) {
+    for (unsigned int t = 1; t < N; t++) {
       // The state at time t+1 .
       AD<double> x1 = vars[x_start + t];
       AD<double> y1 = vars[y_start + t];
@@ -170,26 +170,26 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   // Initial value of the independent variables.
   // SHOULD BE 0 besides initial state.
   Dvector vars(n_vars);
-  for (int i = 0; i < n_vars; i++) {
+  for (unsigned int i = 0; i < n_vars; i++) {
     vars[i] = 0.0;
   }
 
   Dvector vars_lowerbound(n_vars);
   Dvector vars_upperbound(n_vars);
   // TODO: Set lower and upper limits for variables.
-  for (int i = 0; i < delta_start; i++) {
+  for (unsigned int i = 0; i < delta_start; i++) {
     vars_lowerbound[i] = -1.0e19;
     vars_upperbound[i] = 1.0e19;
   }
 
 
-    for (int i = delta_start; i < a_start; i++) {
+    for (unsigned int i = delta_start; i < a_start; i++) {
     vars_lowerbound[i] = -0.436332;
     vars_upperbound[i] = 0.436332;
   }
 
 
-    for (int i = a_start; i < n_vars; i++) {
+    for (unsigned int i = a_start; i < n_vars; i++) {
     vars_lowerbound[i] = -1.0;
     vars_upperbound[i] = 1.0;
   }
@@ -200,7 +200,7 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   // Should be 0 besides initial state.
   Dvector constraints_lowerbound(n_constraints);
   Dvector constraints_upperbound(n_constraints);
-  for (int i = 0; i < n_constraints; i++) {
+  for (unsigned int i = 0; i < n_constraints; i++) {
     constraints_lowerbound[i] = 0;
     constraints_upperbound[i] = 0;
   }
@@ -265,7 +265,7 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   vector<double> values_Done;
   values_Done.push_back(solution.x[delta_start]);
   values_Done.push_back(solution.x[a_start]);
-  for(int i=0;i<N;i++)
+  for(unsigned int i=0;i<N;i++)
   {
     values_Done.push_back(solution.x[x_start+i]);
     values_Done.push_back(solution.x[y_start+i]);
